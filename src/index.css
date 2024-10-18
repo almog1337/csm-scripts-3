@@ -1,0 +1,49 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+body {
+  font-family: 'Heebo', sans-serif;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
+/* RTL specific styles */
+body {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Flip icons that need to be mirrored in RTL */
+.rtl-mirror {
+  transform: scaleX(-1);
+}
+
+/* Ensure the header is above the scrollbar */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Add some padding to the top of the main content to prevent it from being hidden behind the header */
+main {
+  padding-top: 1rem;
+}
