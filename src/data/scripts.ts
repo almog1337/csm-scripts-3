@@ -3,135 +3,281 @@ import { Script } from '../types';
 export const scripts: Script[] = [
   {
     id: '1',
-    name: 'דוח משתמשים מורחב',
-    description: 'הפקת דוח מפורט של כל המשתמשים עם מידע נוסף',
-    type: 'דוח',
-    tags: ['משתמשים', 'דוח', 'ניתוח'],
+    name: 'סקריפט דוגמה מקיף',
+    description: 'סקריפט זה מדגים את כל סוגי הקלט האפשריים במערכת',
+    type: 'דוגמה',
+    tags: ['דוגמה', 'כללי', 'מקיף'],
     sections: [
       {
-        id: 'user_filters',
-        title: 'סינון משתמשים',
+        id: 'basic_inputs',
+        title: 'קלטים בסיסיים',
         inputs: [
-          { name: 'תאריך_הצטרפות_מ', type: 'date', required: true, label: 'תאריך הצטרפות מ-' },
-          { name: 'תאריך_הצטרפות_עד', type: 'date', required: true, label: 'תאריך הצטרפות עד-' },
-          { name: 'סטטוס_משתמש', type: 'select', required: true, label: 'סטטוס משתמש', options: ['פעיל', 'לא פעיל', 'מושהה', 'הכל'] },
+          {
+            name: 'text_input',
+            type: 'text',
+            required: true,
+            label: 'קלט טקסט',
+          },
+          {
+            name: 'number_input',
+            type: 'number',
+            required: true,
+            label: 'קלט מספרי',
+          },
+          {
+            name: 'date_input',
+            type: 'date',
+            required: false,
+            label: 'קלט תאריך',
+          },
+          {
+            name: 'select_input',
+            type: 'select',
+            required: true,
+            label: 'קלט בחירה',
+            options: ['אפשרות 1', 'אפשרות 2', 'אפשרות 3'],
+          },
         ],
-        validate: (sectionInputs) => {
-          const fromDate = new Date(sectionInputs['תאריך_הצטרפות_מ']);
-          const toDate = new Date(sectionInputs['תאריך_הצטרפות_עד']);
-          return fromDate <= toDate ? null : 'תאריך ההתחלה חייב להיות לפני תאריך הסיום';
-        }
       },
       {
-        id: 'report_options',
-        title: 'אפשרויות דוח',
+        id: 'advanced_inputs',
+        title: 'קלטים מתקדמים',
         inputs: [
-          { name: 'כלול_פרטים_אישיים', type: 'select', required: true, label: 'כלול פרטים אישיים', options: ['כן', 'לא'] },
-          { name: 'כלול_היסטוריית_פעילות', type: 'select', required: true, label: 'כלול היסטוריית פעילות', options: ['כן', 'לא'] },
-          { name: 'פורמט_קובץ', type: 'select', required: true, label: 'פורמט קובץ', options: ['CSV', 'Excel', 'PDF'] },
-        ]
-      }
-    ]
+          {
+            name: 'array_input',
+            type: 'text',
+            required: true,
+            label: 'קלט מערך מחרוזות',
+            isArray: true,
+          },
+          {
+            name: 'table_input',
+            type: 'table',
+            required: false,
+            label: 'קלט טבלה',
+            isTable: true,
+            columns: [
+              { key: 'name', label: 'שם', type: 'text' },
+              { key: 'age', label: 'גיל', type: 'number' },
+              { key: 'role', label: 'תפקיד', type: 'select', options: ['מנהל', 'עובד', 'לקוח'] },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     id: '2',
-    name: 'עיבוד נתונים בסיסי',
-    description: 'סקריפט לעיבוד נתונים בסיסי לצורך בדיקה',
-    type: 'עיבוד נתונים',
-    tags: ['נתונים', 'עיבוד', 'בדיקה'],
+    name: 'ניהול משימות פרויקט',
+    description: 'סקריפט לניהול משימות בפרויקט עם אפשרויות מתקדמות',
+    type: 'ניהול פרויקטים',
+    tags: ['פרויקטים', 'משימות', 'ניהול'],
     sections: [
       {
-        id: 'data_source',
-        title: 'מקור נתונים',
+        id: 'project_details',
+        title: 'פרטי הפרויקט',
         inputs: [
-          { name: 'סוג_קובץ', type: 'select', required: true, label: 'סוג קובץ', options: ['CSV', 'JSON', 'XML'] },
-          { name: 'שם_קובץ', type: 'text', required: true, label: 'שם קובץ' },
-          { name: 'מספר_שורות_לעיבוד', type: 'number', required: false, label: 'מספר שורות לעיבוד (ריק לכל השורות)' },
-        ]
+          {
+            name: 'project_name',
+            type: 'text',
+            required: true,
+            label: 'שם הפרויקט',
+          },
+          {
+            name: 'project_description',
+            type: 'text',
+            required: false,
+            label: 'תיאור הפרויקט',
+          },
+          {
+            name: 'start_date',
+            type: 'date',
+            required: true,
+            label: 'תאריך התחלה',
+          },
+          {
+            name: 'end_date',
+            type: 'date',
+            required: true,
+            label: 'תאריך סיום',
+          },
+        ],
+        validate: (inputs) => {
+          const startDate = new Date(inputs.start_date);
+          const endDate = new Date(inputs.end_date);
+          return startDate < endDate ? null : 'תאריך הסיום חייב להיות אחרי תאריך ההתחלה';
+        },
       },
       {
-        id: 'processing_options',
-        title: 'אפשרויות עיבוד',
+        id: 'team_members',
+        title: 'חברי צוות',
         inputs: [
-          { name: 'סוג_עיבוד', type: 'select', required: true, label: 'סוג עיבוד', options: ['ניקוי נתונים', 'טרנספורמציה', 'אגרגציה'] },
-          { name: 'שמור_לוג', type: 'select', required: true, label: 'שמור לוג עיבוד', options: ['כן', 'לא'] },
-          { name: 'הפעל_בדיקות_תקינות', type: 'select', required: true, label: 'הפעל בדיקות תקינות', options: ['כן', 'לא'] },
-        ]
+          {
+            name: 'team_members',
+            type: 'text',
+            required: true,
+            label: 'חברי צוות',
+            isArray: true,
+          },
+        ],
       },
       {
-        id: 'output_options',
-        title: 'אפשרויות פלט',
+        id: 'tasks',
+        title: 'משימות',
         inputs: [
-          { name: 'פורמט_פלט', type: 'select', required: true, label: 'פורמט פלט', options: ['CSV', 'JSON', 'XML'] },
-          { name: 'שם_קובץ_פלט', type: 'text', required: true, label: 'שם קובץ פלט' },
-          { name: 'דחיסת_קובץ', type: 'select', required: true, label: 'דחיסת קובץ', options: ['ללא דחיסה', 'ZIP', 'GZIP'] },
-        ]
-      }
-    ]
+          {
+            name: 'tasks',
+            type: 'table',
+            required: true,
+            label: 'רשימת משימות',
+            isTable: true,
+            columns: [
+              { key: 'task_name', label: 'שם המשימה', type: 'text' },
+              { key: 'assignee', label: 'אחראי', type: 'text' },
+              { key: 'start_date', label: 'תאריך התחלה', type: 'date' },
+              { key: 'end_date', label: 'תאריך סיום', type: 'date' },
+              { key: 'status', label: 'סטטוס', type: 'select', options: ['טרם התחיל', 'בתהליך', 'הושלם'] },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
-    id: '4',
-    name: 'סקר שביעות רצון לקוחות',
-    description: 'יצירה והפצה של סקר שביעות רצון לקוחות',
-    type: 'סקר',
-    tags: ['לקוחות', 'שביעות רצון', 'סקר'],
+    id: '3',
+    name: 'ניתוח נתוני מכירות',
+    description: 'סקריפט לניתוח נתוני מכירות וחישוב סטטיסטיקות',
+    type: 'ניתוח נתונים',
+    tags: ['מכירות', 'ניתוח', 'סטטיסטיקה'],
     sections: [
       {
-        id: 'survey_details',
-        title: 'פרטי הסקר',
+        id: 'date_range',
+        title: 'טווח תאריכים',
         inputs: [
-          { name: 'שם_הסקר', type: 'text', required: true, label: 'שם הסקר' },
-          { name: 'תיאור_הסקר', type: 'text', required: true, label: 'תיאור הסקר' },
-          { name: 'תאריך_תפוגה', type: 'date', required: true, label: 'תאריך תפוגה' },
-        ]
-      },
-      {
-        id: 'target_audience',
-        title: 'קהל יעד',
-        inputs: [
-          { name: 'סוג_לקוחות', type: 'select', required: true, label: 'סוג לקוחות', options: ['כל הלקוחות', 'לקוחות חדשים', 'לקוחות ותיקים'] },
-          { name: 'אזור_גיאוגרפי', type: 'text', required: false, label: 'אזור גיאוגרפי' },
-        ]
-      },
-      {
-        id: 'distribution_method',
-        title: 'שיטת הפצה',
-        inputs: [
-          { name: 'אמצעי_הפצה', type: 'select', required: true, label: 'אמצעי הפצה', options: ['דואר אלקטרוני', 'SMS', 'הודעה באפליקציה'] },
-          { name: 'תזכורות', type: 'select', required: true, label: 'לשלוח תזכורות', options: ['כן', 'לא'] },
-        ]
-      }
-    ]
-  },
-  {
-    id: '5',
-    name: 'ניהול מלאי אוטומטי',
-    description: 'עדכון והזמנה אוטומטית של מלאי על פי כללים מוגדרים',
-    type: 'ניהול מלאי',
-    tags: ['מלאי', 'אוטומציה', 'הזמנות'],
-    sections: [
-      {
-        id: 'inventory_rules',
-        title: 'כללי מלאי',
-        inputs: [
-          { name: 'סף_מינימום', type: 'number', required: true, label: 'סף מינימום להזמנה' },
-          { name: 'כמות_הזמנה', type: 'number', required: true, label: 'כמות להזמנה אוטומטית' },
-        ]
+          {
+            name: 'start_date',
+            type: 'date',
+            required: true,
+            label: 'תאריך התחלה',
+          },
+          {
+            name: 'end_date',
+            type: 'date',
+            required: true,
+            label: 'תאריך סיום',
+          },
+        ],
+        validate: (inputs) => {
+          const startDate = new Date(inputs.start_date);
+          const endDate = new Date(inputs.end_date);
+          return startDate < endDate ? null : 'תאריך הסיום חייב להיות אחרי תאריך ההתחלה';
+        },
       },
       {
         id: 'product_categories',
         title: 'קטגוריות מוצרים',
         inputs: [
-          { name: 'קטגוריות_לניהול', type: 'text', required: true, label: 'קטגוריות לניהול (מופרדות בפסיקים)' },
-          { name: 'החרגות', type: 'text', required: false, label: 'מוצרים להחרגה (מופרדים בפסיקים)' },
-        ]
+          {
+            name: 'categories',
+            type: 'text',
+            required: true,
+            label: 'קטגוריות לניתוח',
+            isArray: true,
+          },
+        ],
       },
       {
-        id: 'notifications',
-        title: 'התראות',
+        id: 'sales_data',
+        title: 'נתוני מכירות',
         inputs: [
-          { name: 'התראות_מלאי_נמוך', type: 'select', required: true, label: 'התראות מלאי נמוך', options: ['כן', 'לא'] },
-          { name: 'דוח_הזמנות', type: 'select', required: true, label: 'דוח הזמנות אוטומטי', options: ['יומי', 'שבועי', 'חודשי', 'ללא'] },
+          {
+            name: 'sales',
+            type: 'table',
+            required: true,
+            label: 'טבלת מכירות',
+            isTable: true,
+            columns: [
+              { key: 'date', label: 'תאריך', type: 'date' },
+              { key: 'product', label: 'מוצר', type: 'text' },
+              { key: 'category', label: 'קטגוריה', type: 'text' },
+              { key: 'quantity', label: 'כמות', type: 'number' },
+              { key: 'price', label: 'מחיר', type: 'number' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'analysis_options',
+        title: 'אפשרויות ניתוח',
+        inputs: [
+          {
+            name: 'group_by',
+            type: 'select',
+            required: true,
+            label: 'קיבוץ לפי',
+            options: ['יום', 'שבוע', 'חודש'],
+          },
+          {
+            name: 'metrics',
+            type: 'text',
+            required: true,
+            label: 'מדדים לחישוב',
+            isArray: true,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: '4',
+    name: 'ניהול מלאי מוצרים',
+    description: 'סקריפט לניהול ועדכון מלאי מוצרים עם וולידציה מתקדמת',
+    type: 'ניהול מלאי',
+    tags: ['מלאי', 'מוצרים', 'וולידציה'],
+    sections: [
+      {
+        id: 'inventory_update',
+        title: 'עדכון מלאי',
+        inputs: [
+          {
+            name: 'inventory_items',
+            type: 'table',
+            required: true,
+            label: 'פריטי מלאי',
+            isTable: true,
+            columns: [
+              { key: 'sku', label: 'מק"ט', type: 'text', required: true },
+              { key: 'name', label: 'שם המוצר', type: 'text', required: true },
+              { key: 'quantity', label: 'כמות', type: 'number', required: true },
+              { key: 'min_quantity', label: 'כמות מינימום', type: 'number', required: true },
+              { key: 'price', label: 'מחיר', type: 'number', required: true },
+              { key: 'location', label: 'מיקום', type: 'select', options: ['מחסן ראשי', 'מחסן משני', 'חנות'], required: true }
+            ],
+            validateRow: (row) => {
+              if (!row.sku || !row.sku.match(/^[A-Z0-9]{6,}$/)) {
+                return 'מק"ט חייב להכיל לפחות 6 תווים של אותיות גדולות ומספרים';
+              }
+              if (!row.name || row.name.length < 3) {
+                return 'שם המוצר חייב להכיל לפחות 3 תווים';
+              }
+              if (isNaN(row.quantity) || Number(row.quantity) < 0) {
+                return 'כמות חייבת להיות מספר חיובי';
+              }
+              if (isNaN(row.min_quantity) || Number(row.min_quantity) < 0) {
+                return 'כמות מינימום חייבת להיות מספר חיובי';
+              }
+              if (Number(row.quantity) < Number(row.min_quantity)) {
+                return 'כמות נוכחית נמוכה מכמות המינימום';
+              }
+              if (isNaN(row.price) || Number(row.price) <= 0) {
+                return 'מחיר חייב להיות מספר חיובי גדול מ-0';
+              }
+              if (!row.location) {
+                return 'חובה לבחור מיקום';
+              }
+              return null;
+            }
+          }
         ]
       }
     ]

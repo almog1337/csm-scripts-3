@@ -43,11 +43,15 @@ const SuccessPopup: React.FC<SuccessPopupProps> = ({ message, onClose }) => {
 
   return (
     <div
-      className={`fixed top-4 right-4 bg-[#F4F6FF] text-[#536493] p-4 rounded-lg shadow-lg transition-opacity duration-300 border border-[#536493] inline-block ${
+      className={`fixed top-20 right-4 bg-[#F4F6FF] text-[#536493] p-4 rounded-lg shadow-lg transition-opacity duration-300 border border-[#536493] inline-block z-[9999] ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      style={{
+        maxWidth: '90vw',
+        wordBreak: 'break-word'
+      }}
     >
       {message}
     </div>

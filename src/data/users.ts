@@ -5,12 +5,12 @@ export const users: User[] = [
     id: '1',
     name: 'משתמש מנהל',
     role: 'admin',
-    permissions: ['run_scripts', 'approve_requests'],
+    permissions: ['run_scripts', 'approve_requests', 'rerun_scripts'],
   },
   {
     id: '2',
     name: 'משתמש רגיל',
     role: 'user',
-    permissions: ['run_scripts'],
+    permissions: ['create_requests'],
   },
 ];

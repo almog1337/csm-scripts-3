@@ -9,6 +9,7 @@ interface AllSectionsViewProps {
   errors: Record<string, string>;
   sectionErrors: Record<string, string>;
   handleInputChange: (name: string, value: string) => void;
+  renderInput: (input: ScriptInput) => React.ReactNode;
 }
 
 const AllSectionsView: React.FC<AllSectionsViewProps> = ({
@@ -17,10 +18,10 @@ const AllSectionsView: React.FC<AllSectionsViewProps> = ({
   errors,
   sectionErrors,
   handleInputChange,
+  renderInput,
 }) => {
   const { theme } = useTheme();
   const [expandedSections, setExpandedSections] = useState<string[]>(sections.map(s => s.id));
-  const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({});
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev =>
@@ -28,13 +29,6 @@ const AllSectionsView: React.FC<AllSectionsViewProps> = ({
         ? prev.filter(id => id !== sectionId)
         : [...prev, sectionId]
     );
-  };
-
-  const toggleAccordion = (inputName: string) => {
-    setOpenAccordions(prev => ({
-      ...prev,
-      [inputName]: !prev[inputName]
-    }));
   };
 
   return (
@@ -61,50 +55,7 @@ const AllSectionsView: React.FC<AllSectionsViewProps> = ({
                     {input.label}
                     {input.required && <span className="text-error">*</span>}
                   </label>
-                  {input.type === 'select' && input.options ? (
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => toggleAccordion(input.name)}
-                        className="w-full p-2 border rounded text-right bg-background text-text focus:ring-2 focus:ring-secondary flex justify-between items-center"
-                      >
-                        <span>{inputs[input.name] || 'בחר אפשרות'}</span>
-                        {openAccordions[input.name] ? (
-                          <ChevronUp size={18} className="rtl-mirror" />
-                        ) : (
-                          <ChevronDown size={18} className="rtl-mirror" />
-                        )}
-                      </button>
-                      {openAccordions[input.name] && (
-                        <div className="absolute z-10 w-full mt-1 bg-background border rounded shadow-lg">
-                          {input.options.map((option) => (
-                            <button
-                              key={option}
-                              type="button"
-                              onClick={() => {
-                                handleInputChange(input.name, option);
-                                toggleAccordion(input.name);
-                              }}
-                              className={`w-full p-2 text-right text-text hover:bg-secondary hover:bg-opacity-20 transition-colors ${
-                                inputs[input.name] === option ? 'bg-secondary bg-opacity-20' : ''
-                              }`}
-                            >
-                              {option}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <input
-                      type={input.type}
-                      name={input.name}
-                      value={inputs[input.name] || ''}
-                      onChange={(e) => handleInputChange(input.name, e.target.value)}
-                      className="w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text"
-                      required={input.required}
-                    />
-                  )}
+                  {renderInput(input)}
                   {errors[input.name] && (
                     <p className="text-error text-sm mt-1">{errors[input.name]}</p>
                   )}

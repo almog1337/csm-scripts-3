@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { ScriptSection, ScriptInput } from '../types';
-import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
+import React from "react";
+import { ScriptSection, ScriptInput } from "../types";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 
 interface SingleSectionViewProps {
   sections: ScriptSection[];
@@ -11,21 +10,22 @@ interface SingleSectionViewProps {
   errors: Record<string, string>;
   sectionErrors: Record<string, string>;
   handleInputChange: (name: string, value: string) => void;
+  renderInput: (input: ScriptInput) => React.ReactNode;
 }
 
 const SingleSectionView: React.FC<SingleSectionViewProps> = ({
   sections,
   currentSectionIndex,
   setCurrentSectionIndex,
-  inputs,
   errors,
   sectionErrors,
-  handleInputChange,
+  renderInput,
 }) => {
-  const { theme } = useTheme();
-  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
-
-  if (sections.length === 0 || currentSectionIndex < 0 || currentSectionIndex >= sections.length) {
+  if (
+    sections.length === 0 ||
+    currentSectionIndex < 0 ||
+    currentSectionIndex >= sections.length
+  ) {
     return <div className="text-text">אין סעיפים זמינים.</div>;
   }
 
@@ -39,10 +39,6 @@ const SingleSectionView: React.FC<SingleSectionViewProps> = ({
     setCurrentSectionIndex((prev) => Math.min(sections.length - 1, prev + 1));
   };
 
-  const toggleAccordion = (inputName: string) => {
-    setOpenAccordion(openAccordion === inputName ? null : inputName);
-  };
-
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -53,7 +49,7 @@ const SingleSectionView: React.FC<SingleSectionViewProps> = ({
               <div
                 key={index}
                 className={`w-2 h-2 rounded-full ${
-                  index === currentSectionIndex ? 'bg-primary' : 'bg-border'
+                  index === currentSectionIndex ? "bg-primary" : "bg-border"
                 }`}
               />
             ))}
@@ -84,50 +80,7 @@ const SingleSectionView: React.FC<SingleSectionViewProps> = ({
             {input.label}
             {input.required && <span className="text-error">*</span>}
           </label>
-          {input.type === 'select' && input.options ? (
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => toggleAccordion(input.name)}
-                className="w-full p-2 border rounded text-right bg-background text-text focus:ring-2 focus:ring-secondary flex justify-between items-center"
-              >
-                <span>{inputs[input.name] || 'בחר אפשרות'}</span>
-                {openAccordion === input.name ? (
-                  <ChevronUp size={18} className="rtl-mirror" />
-                ) : (
-                  <ChevronDown size={18} className="rtl-mirror" />
-                )}
-              </button>
-              {openAccordion === input.name && (
-                <div className="absolute z-10 w-full mt-1 bg-background border rounded shadow-lg">
-                  {input.options.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => {
-                        handleInputChange(input.name, option);
-                        setOpenAccordion(null);
-                      }}
-                      className={`w-full p-2 text-right text-text hover:bg-secondary hover:bg-opacity-20 transition-colors ${
-                        inputs[input.name] === option ? 'bg-secondary bg-opacity-20' : ''
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <input
-              type={input.type}
-              name={input.name}
-              value={inputs[input.name] || ''}
-              onChange={(e) => handleInputChange(input.name, e.target.value)}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text"
-              required={input.required}
-            />
-          )}
+          {renderInput(input)}
           {errors[input.name] && (
             <p className="text-error text-sm mt-1">{errors[input.name]}</p>
           )}

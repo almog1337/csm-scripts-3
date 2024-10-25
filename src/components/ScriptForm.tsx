@@ -4,37 +4,45 @@ import SingleSectionView from './SingleSectionView';
 import AllSectionsView from './AllSectionsView';
 import { Eye, EyeOff } from 'lucide-react';
 import { useTheme } from '../ThemeContext';
+import { useAppContext } from '../AppContext';
+import StringArrayInput from './StringArrayInput';
+import TableInput from './TableInput';
 
 interface ScriptFormProps {
   script: Script;
-  onSubmit: (scriptId: string, inputs: Record<string, string>, executionName: string) => void;
+  onSubmit: (scriptId: string, inputs: Record<string, any>, executionName: string) => void;
 }
 
 const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
   const { theme } = useTheme();
+  const { currentUser } = useAppContext();
   const [viewMode, setViewMode] = useState<'single' | 'all'>('single');
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-  const [inputs, setInputs] = useState<Record<string, string>>({});
+  const [inputs, setInputs] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sectionErrors, setSectionErrors] = useState<Record<string, string>>({});
   const [executionName, setExecutionName] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const [tableValidStates, setTableValidStates] = useState<Record<string, boolean>>({});
 
   const toggleViewMode = () => {
     setViewMode(prev => prev === 'single' ? 'all' : 'single');
   };
 
-  const handleInputChange = (name: string, value: string) => {
+  const handleInputChange = (name: string, value: any, isTableValid?: boolean) => {
     setInputs(prev => ({ ...prev, [name]: value }));
+    if (isTableValid !== undefined) {
+      setTableValidStates(prev => ({ ...prev, [name]: isTableValid }));
+    }
     validateInput(name, value);
   };
 
-  const validateInput = (name: string, value: string) => {
+  const validateInput = (name: string, value: any) => {
     const input = script.sections.flatMap(s => s.inputs).find(i => i.name === name);
     if (input) {
-      if (input.required && !value) {
+      if (input.required && (value === undefined || value === '' || (Array.isArray(value) && value.length === 0))) {
         setErrors(prev => ({ ...prev, [name]: 'שדה זה הוא חובה' }));
-      } else if (input.validation && !input.validation.test(value)) {
+      } else if (input.validation && !input.validation.test(String(value))) {
         setErrors(prev => ({ ...prev, [name]: 'קלט לא חוקי' }));
       } else {
         setErrors(prev => ({ ...prev, [name]: '' }));
@@ -46,7 +54,7 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
     const sectionInputs = section.inputs.reduce((acc, input) => {
       acc[input.name] = inputs[input.name] || '';
       return acc;
-    }, {} as Record<string, string>);
+    }, {} as Record<string, any>);
 
     if (section.validate) {
       const error = section.validate(sectionInputs);
@@ -59,22 +67,25 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
   const validateForm = () => {
     let isValid = true;
     
-    // Validate execution name
     if (!executionName.trim()) {
       isValid = false;
     }
 
-    // Validate all required inputs
     script.sections.forEach(section => {
       section.inputs.forEach(input => {
-        if (input.required && !inputs[input.name]) {
+        const value = inputs[input.name];
+        if (input.required && (value === undefined || value === '' || (Array.isArray(value) && value.length === 0))) {
           setErrors(prev => ({ ...prev, [input.name]: 'שדה זה הוא חובה' }));
+          isValid = false;
+        }
+        
+        // Check table validation states
+        if (input.isTable && !tableValidStates[input.name]) {
           isValid = false;
         }
       });
     });
 
-    // Validate all sections
     script.sections.forEach(section => {
       if (!validateSection(section)) {
         isValid = false;
@@ -87,25 +98,88 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
 
   useEffect(() => {
     validateForm();
-  }, [inputs, executionName]);
+  }, [inputs, executionName, tableValidStates]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       onSubmit(script.id, inputs, executionName);
-      // Clear inputs after successful submission
+      // Clear all inputs after successful submission
       setInputs({});
       setExecutionName('');
+      setErrors({});
+      setSectionErrors({});
+      setTableValidStates({});
     }
   };
 
+  const renderInput = (input: ScriptInput) => {
+    if (input.isTable && input.columns) {
+      return (
+        <TableInput
+          key={input.name}
+          name={input.name}
+          label={input.label}
+          required={input.required}
+          value={inputs[input.name] || []}
+          onChange={(name, value, isValid) => handleInputChange(name, value, isValid)}
+          columns={input.columns}
+          validateRow={input.validateRow}
+        />
+      );
+    }
+
+    if (input.isArray) {
+      return (
+        <StringArrayInput
+          key={input.name}
+          name={input.name}
+          label={input.label}
+          required={input.required}
+          value={inputs[input.name] || []}
+          onChange={(name, value) => handleInputChange(name, value)}
+        />
+      );
+    }
+
+    if (input.type === 'select' && input.options) {
+      return (
+        <select
+          name={input.name}
+          value={inputs[input.name] || ''}
+          onChange={(e) => handleInputChange(input.name, e.target.value)}
+          className="w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text"
+          required={input.required}
+        >
+          <option value="">בחר אפשרות</option>
+          {input.options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
+    return (
+      <input
+        type={input.type}
+        name={input.name}
+        value={inputs[input.name] || ''}
+        onChange={(e) => handleInputChange(input.name, e.target.value)}
+        className="w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text"
+        required={input.required}
+      />
+    );
+  };
+
   return (
-    <div className="bg-background p-4 rounded-lg shadow-md">
+    <div className="bg-background p-4 rounded-lg shadow-md border border-accent1">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-text">{script.name}</h2>
+        <h2 className="text-xl font-bold text-accent1">{script.name}</h2>
         <button
           onClick={toggleViewMode}
-          className="flex items-center bg-primary text-background px-3 py-1 rounded hover:bg-opacity-90 transition-colors"
+          className="flex items-center bg-secondary text-primary px-3 py-1 rounded hover:opacity-90 transition-all"
         >
           {viewMode === 'single' ? (
             <>
@@ -143,6 +217,7 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
             errors={errors}
             sectionErrors={sectionErrors}
             handleInputChange={handleInputChange}
+            renderInput={renderInput}
           />
         ) : (
           <AllSectionsView
@@ -151,16 +226,17 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
             errors={errors}
             sectionErrors={sectionErrors}
             handleInputChange={handleInputChange}
+            renderInput={renderInput}
           />
         )}
         <button
           type="submit"
-          className={`bg-primary text-background px-4 py-2 rounded transition-colors mt-4 ${
-            isFormValid ? 'hover:bg-opacity-90' : 'opacity-50 cursor-not-allowed'
+          className={`bg-primary text-background px-4 py-2 rounded transition-all mt-4 ${
+            isFormValid ? 'hover:opacity-90' : 'opacity-50 cursor-not-allowed'
           }`}
           disabled={!isFormValid}
         >
-          הפעל סקריפט
+          {currentUser.role === 'admin' ? 'הפעל סקריפט' : 'שלח לאישור'}
         </button>
       </form>
     </div>

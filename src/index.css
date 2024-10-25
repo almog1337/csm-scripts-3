@@ -4,24 +4,43 @@
 
 body {
   font-family: 'Heebo', sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  overflow-y: overlay;
+  scrollbar-gutter: stable;
 }
 
-/* Custom scrollbar styles */
+/* Hide main scrollbar */
 ::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
+/* Custom scrollbar styles for containers */
+.overflow-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
+.overflow-auto::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track,
+.overflow-x-auto::-webkit-scrollbar-track {
   background: var(--color-background);
 }
 
-::-webkit-scrollbar-thumb {
+.overflow-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb {
   background: var(--color-primary);
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.overflow-auto::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
   background: var(--color-secondary);
 }
 
@@ -46,4 +65,67 @@ header {
 /* Add some padding to the top of the main content to prevent it from being hidden behind the header */
 main {
   padding-top: 1rem;
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: var(--color-gradient1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Neon glow effect */
+.neon-glow {
+  box-shadow: 0 0 10px var(--color-primary);
+}
+
+/* Custom styles for form inputs */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+select,
+textarea {
+  @apply bg-background text-text border border-border rounded p-2 w-full;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+select:focus,
+textarea:focus {
+  @apply outline-none ring-2 ring-accent1;
+}
+
+/* Custom button styles */
+.btn {
+  @apply px-4 py-2 rounded transition-colors;
+}
+
+.btn-primary {
+  @apply bg-primary text-background hover:bg-opacity-90;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-primary hover:bg-opacity-90;
+}
+
+/* Table styles */
+table {
+  @apply w-full border-collapse;
+}
+
+th, td {
+  @apply p-2 border-b border-border;
+}
+
+thead {
+  @apply bg-primary text-background;
+}
+
+tbody tr:hover {
+  @apply bg-hoverBackground;
 }
