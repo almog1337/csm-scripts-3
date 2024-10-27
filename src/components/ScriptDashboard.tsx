@@ -35,6 +35,10 @@ const ScriptDashboard: React.FC<ScriptDashboardProps> = ({ onDownload, onApprova
 
   const canRerunScripts = currentUser.permissions.includes('rerun_scripts');
 
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
   const filteredExecutions = useMemo(() => {
     return executions.filter((execution) => {
       const matchScriptName = execution.scriptName.toLowerCase().includes(filters.scriptName.toLowerCase());
@@ -53,10 +57,6 @@ const ScriptDashboard: React.FC<ScriptDashboardProps> = ({ onDownload, onApprova
              matchExecutionName && userFilter;
     });
   }, [executions, filters, currentUser]);
-
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
 
   const handleReject = () => {
     if (executionToReject && rejectionReason.trim()) {
@@ -89,7 +89,6 @@ const ScriptDashboard: React.FC<ScriptDashboardProps> = ({ onDownload, onApprova
 
       addExecution(newExecution);
 
-      // Simulate script execution for admin
       if (currentUser.role === 'admin') {
         setTimeout(() => {
           updateExecution(newExecution.id, { status: 'running' });
@@ -147,6 +146,37 @@ const ScriptDashboard: React.FC<ScriptDashboardProps> = ({ onDownload, onApprova
     }
   };
 
+  const renderFilterInput = (key: string, label: string, type: string = 'text', options?: string[]) => (
+    <div className="flex flex-col">
+      <label htmlFor={`filter-${key}`} className="text-sm font-medium text-text mb-1">
+        {label}
+      </label>
+      {type === 'select' ? (
+        <select
+          id={`filter-${key}`}
+          value={filters[key as keyof typeof filters]}
+          onChange={(e) => handleFilterChange(key, e.target.value)}
+          className="p-2 border rounded bg-background text-text hover:border-secondary focus:ring-2 focus:ring-secondary transition-colors"
+        >
+          <option value="">הכל</option>
+          {options?.map(option => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      ) : (
+        <input
+          id={`filter-${key}`}
+          type={type}
+          placeholder={label}
+          value={filters[key as keyof typeof filters]}
+          onChange={(e) => handleFilterChange(key, e.target.value)}
+          className="p-2 border rounded bg-background text-text hover:border-secondary focus:ring-2 focus:ring-secondary transition-colors"
+          step={type === 'datetime-local' ? '60' : undefined}
+        />
+      )}
+    </div>
+  );
+
   if (selectedExecution) {
     return (
       <ScriptExecutionDetail
@@ -167,81 +197,29 @@ const ScriptDashboard: React.FC<ScriptDashboardProps> = ({ onDownload, onApprova
       </button>
       {showFilters && (
         <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <input
-            type="text"
-            placeholder="שם הסקריפט"
-            value={filters.scriptName}
-            onChange={(e) => handleFilterChange('scriptName', e.target.value)}
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            placeholder="שם ההרצה"
-            value={filters.executionName}
-            onChange={(e) => handleFilterChange('executionName', e.target.value)}
-            className="p-2 border rounded"
-          />
-          <input
-            type="datetime-local"
-            placeholder="זמן התחלה"
-            value={filters.startTime}
-            onChange={(e) => handleFilterChange('startTime', e.target.value)}
-            className="p-2 border rounded"
-          />
-          <input
-            type="datetime-local"
-            placeholder="זמן סיום"
-            value={filters.endTime}
-            onChange={(e) => handleFilterChange('endTime', e.target.value)}
-            className="p-2 border rounded"
-          />
-          <input
-            type="text"
-            placeholder="סוג הסקריפט"
-            value={filters.scriptType}
-            onChange={(e) => handleFilterChange('scriptType', e.target.value)}
-            className="p-2 border rounded"
-          />
+          {renderFilterInput('scriptName', 'שם הסקריפט')}
+          {renderFilterInput('executionName', 'שם ההרצה')}
+          {renderFilterInput('startTime', 'תאריך ושעת התחלה מ-', 'datetime-local')}
+          {renderFilterInput('endTime', 'תאריך ושעת התחלה עד-', 'datetime-local')}
+          {renderFilterInput('scriptType', 'סוג הסקריפט')}
           {currentUser.role === 'admin' && (
             <>
-              <input
-                type="text"
-                placeholder="מבקש הסקריפט"
-                value={filters.requestedBy}
-                onChange={(e) => handleFilterChange('requestedBy', e.target.value)}
-                className="p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="מאשר הסקריפט"
-                value={filters.approvedBy}
-                onChange={(e) => handleFilterChange('approvedBy', e.target.value)}
-                className="p-2 border rounded"
-              />
+              {renderFilterInput('requestedBy', 'מבקש הסקריפט')}
+              {renderFilterInput('approvedBy', 'מאשר הסקריפט')}
             </>
           )}
-          <input
-            type="text"
-            placeholder="מזהה"
-            value={filters.id}
-            onChange={(e) => handleFilterChange('id', e.target.value)}
-            className="p-2 border rounded"
-          />
-          <select
-            value={filters.status}
-            onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="">כל הסטטוסים</option>
-            <option value="pending_approval">ממתין לאישור</option>
-            <option value="about to run">מתחיל לרוץ</option>
-            <option value="running">רץ</option>
-            <option value="completed">הושלם</option>
-            <option value="rejected">נדחה</option>
-            <option value="failed">נכשל</option>
-          </select>
+          {renderFilterInput('id', 'מזהה')}
+          {renderFilterInput('status', 'סטטוס', 'select', [
+            'pending_approval',
+            'about to run',
+            'running',
+            'completed',
+            'rejected',
+            'failed'
+          ])}
         </div>
       )}
+
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -326,7 +304,6 @@ const ScriptDashboard: React.FC<ScriptDashboardProps> = ({ onDownload, onApprova
         </table>
       </div>
 
-      {/* Rejection Dialog */}
       {showRejectionDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
           <div className="bg-background p-4 rounded-lg shadow-lg max-w-md w-full">
@@ -360,7 +337,6 @@ const ScriptDashboard: React.FC<ScriptDashboardProps> = ({ onDownload, onApprova
         </div>
       )}
 
-      {/* Rerun Confirmation Dialog */}
       <ConfirmationDialog
         isOpen={showRerunConfirmation}
         title="אישור הרצה חוזרת"

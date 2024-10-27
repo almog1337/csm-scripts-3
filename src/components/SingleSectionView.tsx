@@ -1,6 +1,7 @@
-import React from "react";
-import { ScriptSection, ScriptInput } from "../types";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import React, { useState } from 'react';
+import { ScriptSection, ScriptInput } from '../types';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { useTheme } from '../ThemeContext';
 
 interface SingleSectionViewProps {
   sections: ScriptSection[];
@@ -17,15 +18,15 @@ const SingleSectionView: React.FC<SingleSectionViewProps> = ({
   sections,
   currentSectionIndex,
   setCurrentSectionIndex,
+  inputs,
   errors,
   sectionErrors,
+  handleInputChange,
   renderInput,
 }) => {
-  if (
-    sections.length === 0 ||
-    currentSectionIndex < 0 ||
-    currentSectionIndex >= sections.length
-  ) {
+  const { theme } = useTheme();
+
+  if (sections.length === 0 || currentSectionIndex < 0 || currentSectionIndex >= sections.length) {
     return <div className="text-text">אין סעיפים זמינים.</div>;
   }
 
@@ -49,7 +50,7 @@ const SingleSectionView: React.FC<SingleSectionViewProps> = ({
               <div
                 key={index}
                 className={`w-2 h-2 rounded-full ${
-                  index === currentSectionIndex ? "bg-primary" : "bg-border"
+                  index === currentSectionIndex ? 'bg-primary' : 'bg-border'
                 }`}
               />
             ))}

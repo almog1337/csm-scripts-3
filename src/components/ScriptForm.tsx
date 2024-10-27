@@ -79,7 +79,6 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
           isValid = false;
         }
         
-        // Check table validation states
         if (input.isTable && !tableValidStates[input.name]) {
           isValid = false;
         }
@@ -104,7 +103,6 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
     e.preventDefault();
     if (validateForm()) {
       onSubmit(script.id, inputs, executionName);
-      // Clear all inputs after successful submission
       setInputs({});
       setExecutionName('');
       setErrors({});
@@ -148,7 +146,7 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
           name={input.name}
           value={inputs[input.name] || ''}
           onChange={(e) => handleInputChange(input.name, e.target.value)}
-          className="w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text"
+          className="w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text hover:bg-primary hover:text-background transition-colors"
           required={input.required}
         >
           <option value="">בחר אפשרות</option>
@@ -161,16 +159,26 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
       );
     }
 
-    return (
-      <input
-        type={input.type}
-        name={input.name}
-        value={inputs[input.name] || ''}
-        onChange={(e) => handleInputChange(input.name, e.target.value)}
-        className="w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text"
-        required={input.required}
-      />
-    );
+    const commonProps = {
+      type: input.type,
+      name: input.name,
+      value: inputs[input.name] || '',
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(input.name, e.target.value),
+      className: "w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text hover:border-secondary transition-colors",
+      required: input.required,
+    };
+
+    if (input.type === 'date') {
+      return (
+        <input
+          {...commonProps}
+          type="datetime-local"
+          step="60"
+        />
+      );
+    }
+
+    return <input {...commonProps} />;
   };
 
   return (
@@ -204,7 +212,7 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ script, onSubmit }) => {
             type="text"
             value={executionName}
             onChange={(e) => setExecutionName(e.target.value)}
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text"
+            className="w-full p-2 border rounded focus:ring-2 focus:ring-secondary bg-background text-text hover:border-secondary transition-colors"
             required
           />
         </div>

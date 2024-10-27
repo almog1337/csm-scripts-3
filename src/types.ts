@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 export interface Script {
   id: string;
   name: string;
@@ -30,7 +32,7 @@ export interface ScriptInput {
 export interface TableColumn {
   key: string;
   label: string;
-  type: "text" | "number" | "select";
+  type: 'text' | 'number' | 'select';
   options?: string[];
   required?: boolean;
 }
@@ -38,7 +40,7 @@ export interface TableColumn {
 export interface User {
   id: string;
   name: string;
-  role: "admin" | "user";
+  role: 'admin' | 'user';
   permissions: string[];
 }
 
@@ -46,13 +48,7 @@ export interface ScriptExecution {
   id: string;
   scriptId: string;
   scriptName: string;
-  status:
-    | "pending_approval"
-    | "about to run"
-    | "running"
-    | "completed"
-    | "rejected"
-    | "failed";
+  status: 'pending_approval' | 'about to run' | 'running' | 'completed' | 'rejected' | 'failed';
   startTime: Date;
   endTime?: Date;
   requestedBy: string;
